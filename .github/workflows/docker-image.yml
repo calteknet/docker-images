@@ -33,7 +33,7 @@ jobs:
       matrix:
         dir:
           - python
-
+          - elgg
     defaults:
       run:
         working-directory: ${{ matrix.dir }}
@@ -58,16 +58,15 @@ jobs:
     - name: Lint Dockerfile
       if: contains(steps.changes.outputs.dirs, matrix.dir)
       run: |
-        docker run --rm -i hadolint/hadolint < Dockerfile
+        docker run --rm -i hadolint/hadolint < ${{ matrix.dir }}/Dockerfile
 
     - name: Run build script
       run: |
         chmod +x ./build.sh
-        ./build.sh
+        ./${{ matrix.dir }}/build.sh
 
-    - name: Push ${{ matrix.dir }} image
+    - name: Push PHP-FPM image
       run: |
-        docker tag ${{ matrix.dir }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ matrix.dir }}:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ matrix.dir }}:latest
 
     - name: Post build notifications
