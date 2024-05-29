@@ -31,7 +31,13 @@ jobs:
     if: ${{ github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'pull_request' }}
     strategy:
       matrix:
-        dir: [ 'elgg' ]
+        dir:
+          - elgg
+          - nginx
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
 
     steps:
     - name: Checkout repository
@@ -53,15 +59,16 @@ jobs:
     - name: Lint Dockerfile
       if: contains(steps.changes.outputs.dirs, matrix.dir)
       run: |
-        docker run --rm -i hadolint/hadolint < ${{ matrix.dir }}/Dockerfile
+        docker run --rm -i hadolint/hadolint < Dockerfile
 
     - name: Run build script
       run: |
         chmod +x ./build.sh
-        ./${{ matrix.dir }}/build.sh
+        ./build.sh
 
-    - name: Push PHP-FPM image
+    - name: Push ${{ matrix.dir }} image
       run: |
+        docker tag ${{ matrix.dir }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ matrix.dir }}:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ matrix.dir }}:latest
 
     - name: Post build notifications
