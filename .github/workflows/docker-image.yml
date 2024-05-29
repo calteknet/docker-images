@@ -46,13 +46,6 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Determine Changed Directories
-      id: changes
-      run: |
-        git fetch origin main
-        CHANGED_DIRS=$(git diff --name-only origin/main HEAD | cut -d'/' -f1 | sort -u | tr '\n' ' ')
-        echo "::set-output name=dirs::${CHANGED_DIRS}"
-
     - name: Filter for Changed Directories
       if: contains(steps.changes.outputs.dirs, matrix.dir)
       run: echo "Directory ${{ matrix.dir }} has changes."
