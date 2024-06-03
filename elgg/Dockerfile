@@ -38,7 +38,8 @@ COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 # Clone Elgg source code
 RUN mkdir /elgg && \
     git clone https://github.com/Elgg/Elgg.git /elgg && \
-    chown -R "$USER:$GROUP" /elgg
+    chown -R "$USER:$GROUP" /elgg && \
+    find /elgg -type f -name "*.php" -exec chmod +x {} \;
 
 # Copy entrypoint script and application files
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -53,9 +54,6 @@ USER "$USER"
 
 # Set the working directory
 WORKDIR /elgg
-
-# Copy custom PHP-FPM configuration
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/php-fpm.conf
 
 # Install dependencies
 RUN composer install
