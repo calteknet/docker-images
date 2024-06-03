@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
-# Any additional setup or configuration commands
+# Copy vendored files for NGINX to have access to.
+cp -rf /elgg/* /opt/static
 
 exec "$@"

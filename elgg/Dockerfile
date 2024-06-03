@@ -25,11 +25,11 @@ RUN addgroup -S "$USER" && \
     set -xe && \
     apk update && \
     apk --no-cache add freetype-dev libjpeg-turbo-dev libpng-dev icu-dev \
-        git unzip && \
+        build-base git unzip libxml2-dev && \
     docker-php-ext-configure gd \
       --with-freetype \
       --with-jpeg && \
-    docker-php-ext-install -j"$(nproc)" gd pdo_mysql intl && \
+    docker-php-ext-install -j"$(nproc)" gd pdo_mysql intl xml && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Copy PHP-FPM configuration
@@ -55,8 +55,9 @@ USER "$USER"
 # Set the working directory
 WORKDIR /elgg
 
-# Install dependencies
-RUN composer install
+# Install dependencies - needs to be ran twice, don't know why
+RUN composer install && \
+    composer install
 
 EXPOSE 9000
 
