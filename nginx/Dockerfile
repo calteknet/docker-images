@@ -17,7 +17,9 @@ LABEL org.opencontainers.image.revision="$LATEST_REVISION"
 
 # Create a non-root user and group
 RUN addgroup -g 1000 "$GROUP" && \
-    adduser -D -u 1000 -G "$GROUP" "$USER"
+    adduser -D -u 1000 -G "$GROUP" "$USER" && \
+    apk update && \
+    apk --no-cache add ngrep
 
 # Create necessary directories
 RUN mkdir -p "/home/$USER/nginx_run" && \
