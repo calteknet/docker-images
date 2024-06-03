@@ -24,7 +24,7 @@ RUN mkdir -p "/home/$USER/nginx_run" && \
     mkdir -p /var/cache/nginx/client_temp && \
     chown -R "$USER:$GROUP" /var/cache/nginx "/home/$USER/nginx_run"
 
-# Copy custom Nginx configuration file
+# Copy custom Nginx configuration files
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80 for Nginx
