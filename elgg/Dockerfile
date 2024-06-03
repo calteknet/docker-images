@@ -39,6 +39,8 @@ COPY php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 RUN mkdir /elgg && \
     git clone https://github.com/Elgg/Elgg.git /elgg && \
     chown -R "$USER:$GROUP" /elgg && \
+    mkdir /opt/static /opt/data && \
+    chown -R "$USER:$GROUP" /opt && \
     find /elgg -type f -name "*.php" -exec chmod +x {} \;
 
 # Copy entrypoint script and application files
