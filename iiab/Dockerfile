@@ -1,5 +1,5 @@
 # hadolint global ignore=DL3018
-FROM alpine3.20
+FROM debian
 
 ARG LATEST_VERSION
 ARG LATEST_REVISION
@@ -17,11 +17,16 @@ LABEL org.opencontainers.image.version="$LATEST_VERSION"
 LABEL org.opencontainers.image.revision="$LATEST_REVISION"
 
 # Set the shell to /bin/ash and enable pipefail
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Create a non-root user and group and install deps
-RUN addgroup -S "$USER" && \
-    adduser -S "$USER" -G "$GROUP" && \
+RUN addgroup --system "$USER" && \
+    adduser --system "$USER" --ingroup "$GROUP" && \
+    apt -y update && \
+    apt -y install \
+        sudo \
+        curl \
+        bash && \
     curl https://iiab.io/install.txt | bash
 
 # Switch to the non-root user
