@@ -1,0 +1,76 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *' # Every 24 hours
+
+jobs:
+  determine-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      dirs: ${{ steps.changed_dirs.outputs.dirs }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Determine Changed Directories
+        id: changed_dirs
+        run: |
+          git fetch origin main
+          CHANGED_DIRS=$(git diff --name-only origin/main HEAD | cut -d'/' -f1 | sort -u | tr '\n' ' ')
+          echo "::set-output name=dirs::${CHANGED_DIRS}"
+
+  lint-build-publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'push' || github.event_name == 'pull_request' }}
+    strategy:
+      matrix:
+        dir:
+          - elgg
+          - nginx
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Filter for Changed Directories
+      if: contains(steps.changes.outputs.dirs, matrix.dir)
+      run: echo "Directory ${{ matrix.dir }} has changes."
+
+    - name: Lint Dockerfile
+      if: contains(steps.changes.outputs.dirs, matrix.dir)
+      run: |
+        docker run --rm -i hadolint/hadolint < Dockerfile
+
+    - name: Run build script
+      run: |
+        chmod +x ./build.sh
+        ./build.sh
+
+    - name: Push ${{ matrix.dir }} image
+      run: |
+        docker tag ${{ matrix.dir }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ matrix.dir }}:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ matrix.dir }}:latest
+
+    - name: Post build notifications
+      if: failure()
+      run: echo "Docker image build failed"
