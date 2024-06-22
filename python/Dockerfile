@@ -1,6 +1,5 @@
 # hadolint global ignore=DL3018
-
-FROM python:slim-buster
+FROM python:alpine
 
 # Additional Metadata
 LABEL org.opencontainers.image.title="Python Base Image."
@@ -11,8 +10,8 @@ LABEL org.opencontainers.image.authors="Josh Santos <josh@santos.cloud>"
 WORKDIR /app
 
 # Install dependencies with tools usable by non-root user
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apk update && \
+    apk add \
         python3-dev
 
 # Define environment variables
