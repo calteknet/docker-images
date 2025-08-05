@@ -1,4 +1,4 @@
-FROM php:fpm-alpine3.20
+FROM php:fpm-alpine
 
 ARG LATEST_VERSION
 ARG LATEST_REVISION
@@ -35,6 +35,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # COPY www.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Clone Elgg source code
+# TODO: Ensure the cloned version is same as the one gathered from build script.
 RUN mkdir /elgg && \
     git clone https://github.com/Elgg/Elgg.git /elgg && \
     chown -R ${USER}:${GROUP} /elgg
