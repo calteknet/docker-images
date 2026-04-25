@@ -37,7 +37,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Clone Elgg source code
 # TODO: Ensure the cloned version is same as the one gathered from build script.
 RUN mkdir /elgg && \
-    git clone https://github.com/Elgg/Elgg.git /elgg && \
+    git clone -b 6.3 https://github.com/Elgg/Elgg.git /elgg && \
     chown -R ${USER}:${GROUP} /elgg
 
 # Copy entrypoint script and application files
